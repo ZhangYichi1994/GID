@@ -47,7 +47,7 @@ class Model(object):
 
         num_params = 0
         for name, p in self.network.named_parameters():
-            print('{}: {}'.format(name, str(p.size())))
+            # print('{}: {}'.format(name, str(p.size())))
             num_params += p.numel()
 
         print('#Parameters = {}\n'.format(num_params))

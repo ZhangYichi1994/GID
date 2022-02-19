@@ -72,11 +72,6 @@ class GCNLayer(nn.Module):
             self.register_parameter('bias', None)
 
     def forward(self, input, adj):
-        # if len(input.shape) == 2:
-        #     input = input.unsqueeze(0)
-        # if len(adj.shape) == 2:
-        #     adj = adj.unsqueeze(0)
-
         support = torch.matmul(input, self.weight)
         output = torch.matmul(adj, support)
         if self.bias is not None:

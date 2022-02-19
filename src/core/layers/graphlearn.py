@@ -25,18 +25,15 @@ class GraphLearner(nn.Module):
         self.metric_type = metric_type
         if metric_type == 'attention':
             self.linear_sims = nn.ModuleList([nn.Linear(input_size, hidden_size, bias=False) for _ in range(num_pers)])
-            print('[ Multi-perspective {} GraphLearner: {} ]'.format(metric_type, num_pers))
 
         elif metric_type == 'weighted_cosine':
             self.weight_tensor = torch.Tensor(num_pers, input_size)
             self.weight_tensor = nn.Parameter(nn.init.xavier_uniform_(self.weight_tensor))
-            print('[ Multi-perspective {} GraphLearner: {} ]'.format(metric_type, num_pers))
 
         elif metric_type == 'gat_attention':
             self.linear_sims1 = nn.ModuleList([nn.Linear(input_size, 1, bias=False) for _ in range(num_pers)])
             self.linear_sims2 = nn.ModuleList([nn.Linear(input_size, 1, bias=False) for _ in range(num_pers)])
             self.leakyrelu = nn.LeakyReLU(0.2)
-            print('[ GAT_Attention GraphLearner]')
 
         elif metric_type == 'kernel':
             self.precision_inv_dis = nn.Parameter(torch.Tensor(1, 1))
