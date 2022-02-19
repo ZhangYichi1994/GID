@@ -14,8 +14,7 @@ from .model import Model
 from .utils.generic_utils import to_cuda
 from .utils.data_utils import prepare_datasets, DataStream, vectorize_input
 from .utils import Timer, DummyLogger, AverageMeter
-from .utils import constants as Constants
-from .layers.common import dropout
+from .utils import constants as Constants 
 
 
 class ModelHandler(object):

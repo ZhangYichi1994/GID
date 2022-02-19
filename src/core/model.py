@@ -12,7 +12,6 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 import torch.nn.functional as F
 
 from .models.graph_clf import GraphClf
-from .models.text_graph import TextGraphRegression, TextGraphClf
 from .utils import constants as Constants
 from .utils.generic_utils import to_cuda, create_mask
 from .utils.constants import INF

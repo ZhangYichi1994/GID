@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from ..layers.graphlearn import GraphLearner
-from ..layers.common import dropout
 from ..layers.gnn import GCN, GAT
 from ..utils.generic_utils import to_cuda, normalize_adj
 from ..utils.constants import VERY_SMALL_NUMBER
@@ -32,14 +31,6 @@ class GraphClf(nn.Module):
                                 nhid=hidden_size,
                                 nclass=nclass,
                                 dropout=self.dropout)
-
-        elif self.graph_module == 'gat':
-            self.encoder = GAT(nfeat=nfeat,
-                                        nhid=hidden_size,
-                                        nclass=nclass,
-                                        dropout=self.dropout,
-                                        nheads=config.get('gat_nhead', 1),
-                                        alpha=config.get('gat_alpha', 0.2))
 
         else:
             raise RuntimeError('Unknown graph_module: {}'.format(self.graph_module))

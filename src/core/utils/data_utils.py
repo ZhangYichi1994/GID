@@ -10,12 +10,10 @@ import io
 import torch
 import numpy as np
 from scipy.sparse import *
-from collections import Counter, defaultdict
 
 from .hilp_data import data_utils as hilp_data_utils
 from .timer import Timer
 from . import padding_utils
-from . import constants
 
 
 def vectorize_input(batch, config, training=True, device=None):

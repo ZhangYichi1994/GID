@@ -4,7 +4,6 @@ import torch.nn.functional as F
 
 from .graphlearn import GraphLearner
 from ..utils.generic_utils import to_cuda
-from .common import GatedFusion, GRUStep
 from ..utils.constants import VERY_SMALL_NUMBER, INF
 
 
