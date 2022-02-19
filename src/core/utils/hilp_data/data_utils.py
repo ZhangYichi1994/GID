@@ -97,7 +97,7 @@ class HILP(ConfigData):
         dis = np.linalg.norm(t1- t2)
         return dis
 
-    def load(self, data_dir=None, knn_size=None, epsilon=None, knn_metric='cosine', DBSCAN_flag=None, one_class=None):
+    def load(self, data_dir=None, knn_size=None, epsilon=None, knn_metric='cosine', one_class=None):
         assert (knn_size is None) or (epsilon is None)
           
         if self.dataset_name == 'HardinLoopPlatform':
@@ -151,13 +151,10 @@ class HILP(ConfigData):
 
 
         if not knn_size is None:
-            if not DBSCAN_flag:
-                print('[ Using KNN-graph as input graph: {} ]'.format(knn_size))
-                adj = kneighbors_graph(features, knn_size, metric=knn_metric, include_self=True)
-                adj_norm = normalize_sparse_adj(adj)
-                adj_norm = torch.Tensor(adj_norm.todense())
+            adj = kneighbors_graph(features, knn_size, metric=knn_metric, include_self=True)
+            adj_norm = normalize_sparse_adj(adj)
+            adj_norm = torch.Tensor(adj_norm.todense())
         elif not epsilon is None:
-            print('[ Using Epsilon-graph as input graph: {} ]'.format(epsilon))
             feature_norm = features.div(torch.norm(features, p=2, dim=-1, keepdim=True))
             attention = torch.mm(feature_norm, feature_norm.transpose(-1, -2))
             mask = (attention > epsilon).float()

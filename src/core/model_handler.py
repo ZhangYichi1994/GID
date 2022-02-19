@@ -31,11 +31,6 @@ class ModelHandler(object):
                                 'acc': AverageMeter()}
             self._dev_metrics = {'nloss': AverageMeter(),
                                 'acc': AverageMeter()}
-        elif config['task_type'] == 'regression':
-            self._train_metrics = {'nloss': AverageMeter(),
-                                'r2': AverageMeter()}
-            self._dev_metrics = {'nloss': AverageMeter(),
-                                'r2': AverageMeter()}
         else:
             raise ValueError('Unknown task_type: {}'.format(config['task_type']))
 
@@ -56,8 +51,6 @@ class ModelHandler(object):
         torch.manual_seed(seed)
         if self.device:
             torch.cuda.manual_seed(seed)
-
-
         datasets = prepare_datasets(config)
 
 
@@ -105,7 +98,6 @@ class ModelHandler(object):
         while self._stop_condition(self._epoch, self.config['patience']):
             self._epoch += 1
 
-
             # Train phase
             if self._epoch % self.config['print_every_epochs'] == 0:
                 format_str = "\n>>> Train Epoch: [{} / {}]".format(self._epoch, self.config['max_epochs'])
@@ -123,8 +115,6 @@ class ModelHandler(object):
                 print(format_str)
                 self.logger.write_to_file(format_str)
 
-
-
             # Validation phase
             dev_output, dev_gold = self.run_epoch(self.dev_loader, training=False, verbose=self.config['verbose'],
                                  out_predictions=self.config['out_predictions'])
@@ -141,9 +131,6 @@ class ModelHandler(object):
                 dev_epoch_time_msg = timer.interval("Validation Epoch {}".format(self._epoch))
                 self.logger.write_to_file(dev_epoch_time_msg + '\n' + format_str)
                 print(format_str)
-
-            # if not self.config['data_type'] in ('network', 'uci', 'text'):
-            #     self.model.scheduler.step(self._dev_metrics[self.config['eary_stop_metric']].mean())
 
 
             if self.config['eary_stop_metric'] == self.model.metric_name and dev_metric_score is not None:
@@ -231,173 +218,6 @@ class ModelHandler(object):
         if test_score is not None:
             test_metrics[self.model.metric_name] = test_score
         return test_metrics, output, gold
-
-
-    # def batch_no_gnn(self, x_batch, step, training, out_predictions=False):
-    #     '''Iterative graph learning: batch training'''
-    #     mode = "train" if training else ("test" if self.is_test else "dev")
-    #     network = self.model.network
-    #     network.train(training)
-
-    #     context, context_lens, targets = x_batch['context'], x_batch['context_lens'], x_batch['targets']
-    #     context2 = x_batch.get('context2', None)
-    #     context2_lens = x_batch.get('context2_lens', None)
-
-    #     output = network.compute_no_gnn_output(context, context_lens)
-
-    #     # BP to update weights
-    #     loss = self.model.criterion(output, targets)
-    #     score = self.model.score_func(targets.cpu(), output.detach().cpu())
-
-    #     res = {'loss': loss.item(),
-    #             'metrics': {'nloss': -loss.item(), self.model.metric_name: score},
-    #     }
-    #     if out_predictions:
-    #         res['predictions'] = output.detach().cpu()
-
-    #     if training:
-    #         loss = loss / self.config['grad_accumulated_steps'] # Normalize our loss (if averaged)
-    #         loss.backward()
-
-    #         if (step + 1) % self.config['grad_accumulated_steps'] == 0: # Wait for several backward steps
-    #             self.model.clip_grad()
-    #             self.model.optimizer.step()
-    #             self.model.optimizer.zero_grad()
-    #     return res
-
-
-
-    # def batch_IGL_stop(self, x_batch, step, training, out_predictions=False):
-    #     '''Iterative graph learning: batch training, batch stopping'''
-    #     mode = "train" if training else ("test" if self.is_test else "dev")
-    #     network = self.model.network
-    #     network.train(training)
-
-    #     context, context_lens, targets = x_batch['context'], x_batch['context_lens'], x_batch['targets']
-    #     context2 = x_batch.get('context2', None)
-    #     context2_lens = x_batch.get('context2_lens', None)
-
-    #     # Prepare init node embedding, init adj
-    #     raw_context_vec, context_vec, context_mask, init_adj = network.prepare_init_graph(context, context_lens)
-
-
-    #     # Init
-    #     raw_node_vec = raw_context_vec # word embedding
-    #     init_node_vec = context_vec # hidden embedding
-    #     node_mask = context_mask
-
-    #     cur_raw_adj, cur_adj = network.learn_graph(network.graph_learner, raw_node_vec, network.graph_skip_conn, node_mask=node_mask, graph_include_self=network.graph_include_self, init_adj=init_adj)
-    #     node_vec = torch.relu(network.encoder.graph_encoder1(init_node_vec, cur_adj))
-    #     node_vec = F.dropout(node_vec, network.dropout, training=network.training)
-    #     first_raw_adj, first_adj = cur_raw_adj, cur_adj
-
-
-    #     # BP to update weights
-    #     output = network.encoder.graph_encoder2(node_vec, cur_adj)
-    #     output = network.compute_output(output, node_mask=node_mask)
-    #     loss1 = self.model.criterion(output, targets)
-    #     score = self.model.score_func(targets.cpu(), output.detach().cpu())
-
-    #     if self.config['graph_learn'] and self.config['graph_learn_regularization']:
-    #         loss1 += self.add_batch_graph_loss(cur_raw_adj, raw_node_vec)
-
-
-    #     if not mode == 'test':
-    #         if self._epoch > self.config.get('pretrain_epoch', 0):
-    #             max_iter_ = self.config.get('max_iter', 10) # Fine-tuning
-    #             if self._epoch == self.config.get('pretrain_epoch', 0) + 1:
-    #                 for k in self._dev_metrics:
-    #                     self._best_metrics[k] = -float('inf')
-
-    #         else:
-    #             max_iter_ = 0 # Pretraining
-    #     else:
-    #         max_iter_ = self.config.get('max_iter', 10)
-
-
-    #     eps_adj = float(self.config.get('eps_adj', 0)) if training else float(self.config.get('test_eps_adj', self.config.get('eps_adj', 0)))
-    #     pre_raw_adj = cur_raw_adj
-    #     pre_adj = cur_adj
-
-    #     loss = 0
-    #     iter_ = 0
-    #     # Indicate the last iteration number for each example
-    #     batch_last_iters = to_cuda(torch.zeros(x_batch['batch_size'], dtype=torch.uint8), self.device)
-    #     # Indicate either an example is in onging state (i.e., 1) or stopping state (i.e., 0)
-    #     batch_stop_indicators = to_cuda(torch.ones(x_batch['batch_size'], dtype=torch.uint8), self.device)
-    #     batch_all_outputs = []
-    #     while (iter_ == 0 or torch.sum(batch_stop_indicators).item() > 0) and iter_ < max_iter_:
-    #         iter_ += 1
-    #         batch_last_iters += batch_stop_indicators
-    #         pre_adj = cur_adj
-    #         pre_raw_adj = cur_raw_adj
-    #         cur_raw_adj, cur_adj = network.learn_graph(network.graph_learner2, node_vec, network.graph_skip_conn, node_mask=node_mask, graph_include_self=network.graph_include_self, init_adj=init_adj)
-
-
-    #         update_adj_ratio = self.config.get('update_adj_ratio', None)
-    #         if update_adj_ratio is not None:
-    #             cur_adj = update_adj_ratio * cur_adj + (1 - update_adj_ratio) * first_adj
-
-    #         node_vec = torch.relu(network.encoder.graph_encoder1(init_node_vec, cur_adj))
-    #         node_vec = F.dropout(node_vec, self.config.get('gl_dropout', 0), training=network.training)
-
-
-    #         # BP to update weights
-    #         tmp_output = network.encoder.graph_encoder2(node_vec, cur_adj)
-    #         tmp_output = network.compute_output(tmp_output, node_mask=node_mask)
-    #         batch_all_outputs.append(tmp_output.unsqueeze(1))
-
-    #         tmp_loss = self.model.criterion(tmp_output, targets, reduction='none')
-    #         if len(tmp_loss.shape) == 2:
-    #             tmp_loss = torch.mean(tmp_loss, 1)
-
-    #         loss += batch_stop_indicators.float() * tmp_loss
-
-    #         if self.config['graph_learn'] and self.config['graph_learn_regularization']:
-    #             loss += batch_stop_indicators.float() * self.add_batch_graph_loss(cur_raw_adj, raw_node_vec, keep_batch_dim=True)
-
-    #         if self.config['graph_learn'] and not self.config.get('graph_learn_ratio', None) in (None, 0):
-    #             loss += batch_stop_indicators.float() * batch_SquaredFrobeniusNorm(cur_raw_adj - pre_raw_adj) * self.config.get('graph_learn_ratio')
-
-
-    #         tmp_stop_criteria = batch_diff(cur_raw_adj, pre_raw_adj, first_raw_adj) > eps_adj
-    #         batch_stop_indicators = batch_stop_indicators * tmp_stop_criteria
-
-
-
-    #     if iter_ > 0:
-    #         loss = torch.mean(loss / batch_last_iters.float()) + loss1
-
-    #         batch_all_outputs = torch.cat(batch_all_outputs, 1)
-    #         selected_iter_index = batch_last_iters.long().unsqueeze(-1) - 1
-
-    #         if len(batch_all_outputs.shape) == 3:
-    #             selected_iter_index = selected_iter_index.unsqueeze(-1).expand(-1, -1, batch_all_outputs.size(-1))
-    #             output = batch_all_outputs.gather(1, selected_iter_index).squeeze(1)
-    #         else:
-    #             output = batch_all_outputs.gather(1, selected_iter_index)
-
-    #         score = self.model.score_func(targets.cpu(), output.detach().cpu())
-
-
-    #     else:
-    #         loss = loss1
-
-    #     res = {'loss': loss.item(),
-    #             'metrics': {'nloss': -loss.item(), self.model.metric_name: score},
-    #     }
-    #     if out_predictions:
-    #         res['predictions'] = output.detach().cpu()
-
-    #     if training:
-    #         loss = loss / self.config['grad_accumulated_steps'] # Normalize our loss (if averaged)
-    #         loss.backward()
-
-    #         if (step + 1) % self.config['grad_accumulated_steps'] == 0: # Wait for several backward steps
-    #             self.model.clip_grad()
-    #             self.model.optimizer.step()
-    #             self.model.optimizer.zero_grad()
-    #     return res
 
     def _run_whole_epoch(self, data_loader, training=True, verbose=None, out_predictions=False):
         '''BP after all iterations'''
@@ -508,43 +328,6 @@ class ModelHandler(object):
         self._update_metrics(loss.item(), {'nloss': -loss.item(), self.model.metric_name: score}, 1, training=training)
         return output, labels
 
-    # def _run_batch_epoch(self, data_loader, training=True, rl_ratio=0, verbose=10, out_predictions=False):
-    #     start_time = time.time()
-    #     mode = "train" if training else ("test" if self.is_test else "dev")
-
-    #     if training:
-    #         self.model.optimizer.zero_grad()
-    #     output = []
-    #     gold = []
-    #     for step in range(data_loader.get_num_batch()):
-    #         input_batch = data_loader.nextBatch()
-    #         x_batch = vectorize_input(input_batch, self.config, training=training, device=self.device)
-    #         if not x_batch:
-    #             continue  # When there are no examples in the batch
-
-    #         if self.config.get('no_gnn', False):
-    #             res = self.batch_no_gnn(x_batch, step, training=training, out_predictions=out_predictions)
-    #         else:
-    #             res = self.batch_IGL_stop(x_batch, step, training=training, out_predictions=out_predictions)
-
-    #         loss = res['loss']
-    #         metrics = res['metrics']
-    #         self._update_metrics(loss, metrics, x_batch['batch_size'], training=training)
-
-    #         if training:
-    #             self._n_train_examples += x_batch['batch_size']
-
-    #         if (verbose > 0) and (step > 0) and (step % verbose == 0):
-    #             summary_str = self.self_report(step, mode)
-    #             self.logger.write_to_file(summary_str)
-    #             print(summary_str)
-    #             print('used_time: {:0.2f}s'.format(time.time() - start_time))
-
-    #         if not training and out_predictions:
-    #             output.extend(res['predictions'])
-    #             gold.extend(x_batch['targets'])
-    #     return output, gold
-
 
     def set_requires_grad(self, nets, requires_grad=False):
         """Set requies_grad=Fasle for all the networks to avoid unnecessary computations
@@ -642,39 +425,7 @@ class ModelHandler(object):
         ones_vec = to_cuda(torch.ones(out_adj.size(-1)), self.device)
         graph_loss += -self.config['degree_ratio'] * torch.mm(ones_vec.unsqueeze(0), torch.log(torch.mm(out_adj, ones_vec.unsqueeze(-1)) + Constants.VERY_SMALL_NUMBER)).squeeze() / out_adj.shape[-1]
         graph_loss += self.config['sparsity_ratio'] * torch.sum(torch.pow(out_adj, 2)) / int(np.prod(out_adj.shape))
-        # graph_loss += 1000 * torch.norm((out_adj - out_adj.t()))
-        # graph_loss += self.config['sparsity_ratio'] * torch.sum(torch.pow(out_adj, 1)) / int(np.prod(out_adj.shape))
         return graph_loss
-
-
-    # def add_batch_graph_loss(self, out_adj, features, keep_batch_dim=False):
-    #     # Graph regularization
-    #     if keep_batch_dim:
-    #         graph_loss = []
-    #         for i in range(out_adj.shape[0]):
-    #             L = torch.diagflat(torch.sum(out_adj[i], -1)) - out_adj[i]
-    #             graph_loss.append(self.config['smoothness_ratio'] * torch.trace(torch.mm(features[i].transpose(-1, -2), torch.mm(L, features[i]))) / int(np.prod(out_adj.shape[1:])))
-
-    #         graph_loss = to_cuda(torch.Tensor(graph_loss), self.device)
-
-    #         ones_vec = to_cuda(torch.ones(out_adj.shape[:-1]), self.device)
-    #         graph_loss += -self.config['degree_ratio'] * torch.matmul(ones_vec.unsqueeze(1), torch.log(torch.matmul(out_adj, ones_vec.unsqueeze(-1)) + Constants.VERY_SMALL_NUMBER)).squeeze(-1).squeeze(-1) / out_adj.shape[-1]
-    #         graph_loss += self.config['sparsity_ratio'] * torch.sum(torch.pow(out_adj, 2), (1, 2)) / int(np.prod(out_adj.shape[1:]))
-    #         # graph_loss += self.config['sparsity_ratio'] * torch.sum(torch.pow(out_adj, 2), (1, 1)) / int(np.prod(out_adj.shape[1:]))
-
-
-    #     else:
-    #         graph_loss = 0
-    #         for i in range(out_adj.shape[0]):
-    #             L = torch.diagflat(torch.sum(out_adj[i], -1)) - out_adj[i]
-    #             graph_loss += self.config['smoothness_ratio'] * torch.trace(torch.mm(features[i].transpose(-1, -2), torch.mm(L, features[i]))) / int(np.prod(out_adj.shape))
-
-    #         ones_vec = to_cuda(torch.ones(out_adj.shape[:-1]), self.device)
-    #         graph_loss += -self.config['degree_ratio'] * torch.matmul(ones_vec.unsqueeze(1), torch.log(torch.matmul(out_adj, ones_vec.unsqueeze(-1)) + Constants.VERY_SMALL_NUMBER)).sum() / out_adj.shape[0] / out_adj.shape[-1]
-    #         graph_loss += self.config['sparsity_ratio'] * torch.sum(torch.pow(out_adj, 2)) / int(np.prod(out_adj.shape))
-    #         # graph_loss += self.config['sparsity_ratio'] * torch.sum(torch.pow(out_adj, 1)) / int(np.prod(out_adj.shape))
-    #     return graph_loss
-
 
 
 def diff(X, Y, Z):
@@ -687,16 +438,10 @@ def diff(X, Y, Z):
 
 def batch_diff(X, Y, Z):
     pass
-    # assert X.shape == Y.shape
-    # diff_ = torch.sum(torch.pow(X - Y, 2), (1, 2)) # Shape: [batch_size]
-    # norm_ = torch.sum(torch.pow(Z, 2), (1, 2))
-    # diff_ = diff_ / torch.clamp(norm_, min=Constants.VERY_SMALL_NUMBER)
-    # return diff_
 
 def SquaredFrobeniusNorm(X):
     return torch.sum(torch.pow(X, 2)) / int(np.prod(X.shape))
 
 def batch_SquaredFrobeniusNorm(X):
-    # return torch.sum(torch.pow(X, 2), (1, 2)) / int(np.prod(X.shape[1:]))
     pass
 

@@ -27,24 +27,11 @@ class Model(object):
         self.config = config
         if self.config['model_name'] == 'GraphClf':
             self.net_module = GraphClf
-        elif self.config['model_name'] == 'TextGraphRegression':
-            self.net_module = TextGraphRegression
-        elif self.config['model_name'] == 'TextGraphClf':
-            self.net_module = TextGraphClf
         else:
             raise RuntimeError('Unknown model_name: {}'.format(self.config['model_name']))
         print('[ Running {} model ]'.format(self.config['model_name']))
 
-        if config['data_type'] == 'text':
-            saved_vocab_file = os.path.join(config['data_dir'], '{}_seed{}.vocab'.format(config['dataset_name'], config.get('data_seed', 1234)))
-            self.vocab_model = VocabModel.build(saved_vocab_file, train_set, self.config)
-
-        if config['task_type'] == 'regression':
-            assert config['out_predictions']
-            self.criterion = F.mse_loss
-            self.score_func = r2_score
-            self.metric_name = 'r2'
-        elif config['task_type'] == 'classification':
+        if config['task_type'] == 'classification':
             self.criterion = F.nll_loss
             self.score_func = accuracy
             self.metric_name = 'acc'
