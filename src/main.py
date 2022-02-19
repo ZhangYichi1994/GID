@@ -107,7 +107,7 @@ def grid(kwargs):
 
 if __name__ == '__main__':
     
-    cfg = {'config': 'config/HardinLoopPlatform/hdlp.yml', 'multi_run':False}
+    cfg = {'config': 'config/HardinLoopPlatform/hilp.yml', 'multi_run':False}
     config = get_config(cfg['config'])
     if cfg['multi_run']:
         multi_run_main(config)

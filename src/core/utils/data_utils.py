@@ -55,7 +55,7 @@ def prepare_datasets(config):
     if config['data_type'] == 'hilp':
         data_conf = hilp_data_utils.HILP(seed=config.get('data_seed', config['seed']), dataset_name=config['dataset_name'], n_train=config['n_train'], n_val=config['n_val'],
                                         one_class = config['one_class'], eliminate_small_part = config['eliminate_small_part'])
-        adj, features, labels, idx_train, idx_val, idx_test = data_conf.load(data_dir=config.get('data_dir', None), knn_size=config['input_graph_knn_size'], epsilon=config.get('input_graph_epsilon', None), knn_metric=config.get('knn_metric', 'cosine'), DBSCAN_flag = config['DBSCAN_flag'], one_class = config['one_class'])
+        adj, features, labels, idx_train, idx_val, idx_test = data_conf.load(data_dir=config.get('data_dir', None), knn_size=config['input_graph_knn_size'], epsilon=config.get('input_graph_epsilon', None), knn_metric=config.get('knn_metric', 'cosine'), one_class = config['one_class'])
 
         device = config['device']
         data = {'adj': adj.to(device) if device and adj is not None else adj,
