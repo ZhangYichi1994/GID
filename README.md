@@ -6,7 +6,7 @@ Mississippi data, mentioned in the paper, can be obtained from [Mississippi Indu
 The data in [/data/HardinLoopPlatform](https://github.com/MrZhangCSU/GID/tree/main/data/HardinLoopPlatform) is collected from the hard-in-the-loop platform of School of Automation of Central South University.
 The photo of the self-built platform is shown below:
 
-<div align=center>![This is the Hard-In-the-Loop Platform we built!](https://raw.githubusercontent.com/MrZhangCSU/GID/main/HILP.png)
+![This is the Hard-In-the-Loop Platform we built!](https://raw.githubusercontent.com/MrZhangCSU/GID/main/HILP.png)
 
 The DOI of this paper is: 
 
