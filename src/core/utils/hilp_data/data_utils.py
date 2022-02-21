@@ -1,4 +1,4 @@
-# The code below are borrowed from https://github.com/lucfra/LDS-GNN/blob/master/
+# The code below are borrowed from https://github.com/lucfra/LDS-GNN/blob/master/ and make some modifies.
 import os
 import pickle
 import numpy as np
