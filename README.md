@@ -1,6 +1,6 @@
 # GID
 
-- This is the source code of "Intrusion Detection of Industrial Internet-of-Things Based on Reconstructed Graph Neural Networks" (Still under review)
+- This is the source code of "Y. Zhang, C. Yang, K. Huang and Y. Li, "Intrusion Detection of Industrial Internet-of-Things Based on Reconstructed Graph Neural Networks," in IEEE Transactions on Network Science and Engineering, 2022, doi: 10.1109/TNSE.2022.3184975." 
 
 - Mississippi data, mentioned in the paper, can be obtained from [Mississippi Industrial Control System (ICS) Cyber Attack Datasets](https://sites.google.com/a/uah.edu/tommy-morris-uah/ics-data-sets)
 
