@@ -8,6 +8,7 @@
 The photo of the self-built platform is shown below:
 <div align=center><img src="https://raw.githubusercontent.com/MrZhangCSU/GID/main/HILP.png"></div>
 <div align=center>This is the HILP platform we built </div>
+
 - The details of this platform can be found in this paper: [10.1109/RASSE53195.2021.9686839](https://doi.org/10.1109/RASSE53195.2021.9686839)
 
 - The DOI of this paper is: [10.1109/TNSE.2022.3184975](https://doi.org/10.1109/TNSE.2022.3184975)
