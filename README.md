@@ -1,6 +1,8 @@
 # GID
 
-- This is the source code of "Y. Zhang, C. Yang, K. Huang and Y. Li, "Intrusion Detection of Industrial Internet-of-Things Based on Reconstructed Graph Neural Networks," in IEEE Transactions on Network Science and Engineering, 2022, doi: 10.1109/TNSE.2022.3184975." 
+- This is the source code of "Y. Zhang, C. Yang, K. Huang and Y. Li, "Intrusion Detection of Industrial Internet-of-Things Based on Reconstructed Graph Neural Networks," in IEEE Transactions on Network Science and Engineering, vol. 10, no. 5, pp. 2894-2905, 1 Sept.-Oct. 2023, doi: 10.1109/TNSE.2022.3184975."
+
+- The DOI of this paper is: [10.1109/TNSE.2022.3184975](https://doi.org/10.1109/TNSE.2022.3184975)
 
 - Mississippi data, mentioned in the paper, can be obtained from [Mississippi Industrial Control System (ICS) Cyber Attack Datasets](https://sites.google.com/a/uah.edu/tommy-morris-uah/ics-data-sets)
 
@@ -9,9 +11,7 @@ The photo of the self-built platform is shown below:
 <div align=center><img src="https://raw.githubusercontent.com/MrZhangCSU/GID/main/HILP.png"></div>
 <div align=center>This is the HILP platform we built </div>
 
-- The details of this platform can be found in this paper: [10.1109/RASSE53195.2021.9686839](https://doi.org/10.1109/RASSE53195.2021.9686839)
-
-- The DOI of this paper is: [10.1109/TNSE.2022.3184975](https://doi.org/10.1109/TNSE.2022.3184975)
+- The details of this platform can be found in this paper: [False Data Injection Attack Testbed of Industrial Cyber-Physical Systems of Process Industry and A Detection Application](https://doi.org/10.1109/RASSE53195.2021.9686839)
 
 - If you find the source code useful, please cite:
 ```latex
