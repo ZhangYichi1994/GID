@@ -33,5 +33,5 @@ The photo of the self-built platform is shown below:
 
 - In Jan. 18 2024, I noticed that this paper is marked as highly cited and hot paper on web of science, I am so excited! Although I have already left the academia for some reasons, I am still happy my work can be accepted by other researchers. 
 
-<div align=center><img src="https://raw.githubusercontent.com/MrZhangCSU/GID/main/hotPaper.jpg"></div>
+<div align=center><img src="https://raw.githubusercontent.com/MrZhangCSU/GID/main/hotPaper2.jpg"></div>
 <div align=center>This is a screenshot as a souvenir </div>
