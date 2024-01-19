@@ -1,5 +1,7 @@
 # GID
 
+- If you are interested in this paper, please contact wangyizyc409@126.com at any time if you have any questions, I am pleased to discuss with you. 
+
 - This is the source code of "Y. Zhang, C. Yang, K. Huang and Y. Li, "Intrusion Detection of Industrial Internet-of-Things Based on Reconstructed Graph Neural Networks," in IEEE Transactions on Network Science and Engineering, vol. 10, no. 5, pp. 2894-2905, 1 Sept.-Oct. 2023, doi: 10.1109/TNSE.2022.3184975."
 
 - The DOI of this paper is: [10.1109/TNSE.2022.3184975](https://doi.org/10.1109/TNSE.2022.3184975)
